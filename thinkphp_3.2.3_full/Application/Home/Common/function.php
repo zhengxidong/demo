@@ -64,8 +64,6 @@ function csvExport($header = [],$data = [],$fileName = 'example') {
     header('Pragma:public');
     header('Content-Type: application/vnd.ms-excel');
     header('Content-Disposition: attachment;filename="'.$fileName.'.csv"');
-    //header('Cache-Control: max-age=0');
-    //header("Last-Modified: {$now} GMT");
 
     //打开PHP文件句柄,php://output 表示直接输出到浏览器
     $fp = fopen('php://output', 'a');
@@ -206,7 +204,7 @@ function getExportCsv($timeStart, $timeEnd,$fileName = 'example'){
     exit();
 }
 /**
- * 发送邮件
+ * 发送邮件 - 未测试
  *
  * @param [type] $to
  * @param [type] $subject
