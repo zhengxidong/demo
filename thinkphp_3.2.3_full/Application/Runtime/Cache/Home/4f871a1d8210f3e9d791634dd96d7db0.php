@@ -15,5 +15,13 @@
         <label for="">导出Csv</label>
         <input type="submit" value="导出">
     </form>
+    <form action="<?php echo U('Export/exportCsv');?>" method="post">
+        <label for="">导出Csv(将数据分割保存在多个csv文件中，并且最后压缩成zip文件提供下载) - 未测试</label>
+        <input type="submit" value="导出">
+    </form>
+    <form action="<?php echo U('Export/exportCsv');?>" method="post">
+        <label for="">导出Csv(分批查询数据库导出数据) - 未测试</label>
+        <input type="submit" value="导出">
+    </form>
 </body>
 </html>

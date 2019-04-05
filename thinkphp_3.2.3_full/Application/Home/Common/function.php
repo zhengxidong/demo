@@ -16,7 +16,7 @@ function xlsExport($header,$data,$fileName = 'example'){
     $fileName = $fileName.'.xls';
 
     set_time_limit(0);  //设置执行时间
-    Vendor('PHPExcel.PHPExcel');
+    vendor('PHPExcel.PHPExcel');
 
     $phpexcel = new PHPExcel();
     $phpexcel->getProperties()
@@ -164,14 +164,14 @@ function putCsv(array $head, $data, $mark = 'attack_ip_info', $fileName = "test.
  * PHP output流, 渐进式的往output流中写入数据, 写到一定量后将系统缓冲冲刷到响应中
  * 避免缓冲溢出
  */
-function getExportCsv($timeStart, $timeEnd){
+function getExportCsv($timeStart, $timeEnd,$fileName = 'example'){
 
     set_time_limit(0);
     $columns = [
         '文章ID','文章标题',
     ];
     
-    $csvFileName = '用户日志' . $timeStart .'_'. $timeEnd . '.xlsx';
+    //$csvFileName = '用户日志' . $timeStart .'_'. $timeEnd . '.xlsx';
     //设置好告诉浏览器要下载excel文件的headers
     header('Content-Description: File Transfer');
     header('Content-Type: application/vnd.ms-excel');
@@ -181,26 +181,61 @@ function getExportCsv($timeStart, $timeEnd){
     header('Pragma: public');
     $fp = fopen('php://output', 'a');//打开output流
     mb_convert_variables('GBK', 'UTF-8', $columns);
-    fputcsv($fp, $columns);//将数据格式化为CSV格式并写入到output流中
-    $accessNum = '1000000'//从数据库获取总量，假设是一百万
-    $perSize = 1000;//每次查询的条数
-    $pages   = ceil($accessNum / $perSize);
+    fputcsv($fp, $columns);         //将数据格式化为CSV格式并写入到output流中
+    $accessNum = '1000000';          //从数据库获取总量，假设是一百万
+    $pageSize = 1000;               //每次查询的条数
+    $pages   = ceil($accessNum / $pageSize);
     $lastId  = 0;
     for($i = 1; $i <= $pages; $i++) {
-        $accessLog = $logService->getArticleAccessLog($timeStart, $timeEnd, $lastId, $perSize);
-        foreach($accessLog as $access) {
-            $rowData = [
-                //每一行的数据
-            ];
-            mb_convert_variables('GBK', 'UTF-8', $rowData);
-            fputcsv($fp, $rowData);
-            $lastId = $access->id;
-        }
-        unset($accessLog);//释放变量的内存
-        //刷新输出缓冲到浏览器
-        ob_flush();
-        flush();//必须同时使用 ob_flush() 和flush() 函数来刷新输出缓冲。
+        //分批查询数据库
+        //$accessLog = $logService->getArticleAccessLog($timeStart, $timeEnd, $lastId, $pageSize);
+        // foreach($accessLog as $access) {
+        //     $rowData = [
+        //         //每一行的数据
+        //     ];
+        //     mb_convert_variables('GBK', 'UTF-8', $rowData);
+        //     fputcsv($fp, $rowData);
+        //     $lastId = $access->id;
+        // }
+        // unset($accessLog);//释放变量的内存
+        // //刷新输出缓冲到浏览器
+        // ob_flush();
+        // flush();//必须同时使用 ob_flush() 和flush() 函数来刷新输出缓冲。
     }
     fclose($fp);
     exit();
+}
+/**
+ * 发送邮件
+ *
+ * @param [type] $to
+ * @param [type] $subject
+ * @param [type] $content
+ * @return void
+ */
+function sendMail($to,$subject,$content){
+    vendor('PHPMailer.class#phpmailer');
+    $mail = new \PHPMailer();
+
+    //装配邮件服务器
+    if(C('MAIL_SMTP')){
+        $mail->isSMTP()();  //启动SMPT
+    }
+
+    $mail->Host = C('MAIL_HOST'); //SMPT服务器地址
+    $mail->Port = C('MAIL_PORT'); //邮件端口
+    $mail->SMTPAuth = C('MAIL_SMTPAUTH'); //启用SMTP认证
+    $mail->Username = C('MAIL_USERNAME'); //邮箱名称
+    $mail->Password = C('MAIL_PASSWORD'); //邮箱密码
+    $mail->SMTPSecure = C('MAIL_SECURE'); //协议
+    $mail->Charset = C('MAIL_CHARSET'); //邮件头部信息
+    $mail->From = C('MAIL_USERNAME'); //SMTP服务器登录用户名
+    $mail->AddAddress($to);
+    $mail->FromName = 'itellyou';   //发件人
+    $mail->IsHTML(C('MAIL_ISHTML')); //是否是HTML字样
+    $mail->Subject = $subject; //邮件标题信息
+    $mail->Body = $content; //邮件内容
+
+    //发送邮件
+    return (!$mail->Send()) ? false : true;
 }
