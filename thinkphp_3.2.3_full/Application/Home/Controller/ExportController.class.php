@@ -21,7 +21,7 @@ class ExportController extends Controller{
             [1,'30','衣服'],
         ];
         $fileName = date('Ymd').'_example';
-        exportXls($header,$orderInfo,$fileName);
+        xlsExport($header,$orderInfo,$fileName);
     }
 
     /**
@@ -36,12 +36,12 @@ class ExportController extends Controller{
             [1,30,'衣服'],
         ];
         $fileName = date('Ymd').'_example';
-        csv_export($header,$orderInfo,$fileName);
+        csvExport($header,$orderInfo,$fileName);
     }
 
     /**
      * 
-     * 导出数据(csv格式)
+     * 导出数据(csv格式) - 未测试
      * 将数据分割保存在多个csv文件中，并且最后压缩成zip文件提供下载
      */
     function putCsv(){
@@ -52,6 +52,23 @@ class ExportController extends Controller{
             [1,30,'衣服'],
         ];
         $fileName = 'example';
-        csv_export($header,$orderInfo,$fileName);
+        putCsv($header,$orderInfo,$fileName);
+    }
+
+    /**
+     * 分批查询数据库导出 - 未测试
+     *
+     * @return void
+     */
+    function getExportCsv(){
+        
+        $header = ['订单编号','金额','类型'];
+        $orderInfo = [
+            [1,30,'衣服'],
+            [1,30,'衣服'],
+            [1,30,'衣服'],
+        ];
+        $fileName = 'example';
+        getExportCsv($header,$orderInfo,$fileName);
     }
 }

@@ -7,7 +7,7 @@
  * @param string $fileName 文件名，默认example
  * @return void
  */
-function exportXls($header,$data,$fileName = 'example'){
+function xlsExport($header,$data,$fileName = 'example'){
 
     if(!empty($header)){
         $initData = array_merge($header,$data);
@@ -15,7 +15,7 @@ function exportXls($header,$data,$fileName = 'example'){
 
     $fileName = $fileName.'.xls';
 
-    ini_set('max_execution_time','0');  //设置执行时间
+    set_time_limit(0);  //设置执行时间
     Vendor('PHPExcel.PHPExcel');
 
     $phpexcel = new PHPExcel();
@@ -56,7 +56,7 @@ function exportXls($header,$data,$fileName = 'example'){
  * @header 第一行,列名
  * @fileName 输出csv文件名,默认example
  */
-function csv_export($header = [],$data = [],$fileName = 'example') {
+function csvExport($header = [],$data = [],$fileName = 'example') {
 
     header("Content-type:text/csv;charset=utf-8");
     header('Cache-Control:must-revalidate,post-check=0,pre-check=0,max-age=0');
@@ -98,6 +98,7 @@ function csv_export($header = [],$data = [],$fileName = 'example') {
     }
 }
 
+//未测试
 //导出说明:因为EXCEL单表只能显示104W数据，同时使用PHPEXCEL容易因为数据量太大而导致占用内存过大，
 //因此，数据的输出用csv文件的格式输出，但是csv文件用EXCEL软件读取同样会存在只能显示104W的情况，
 //所以将数据分割保存在多个csv文件中，并且最后压缩成zip文件提供下载
@@ -155,4 +156,51 @@ function putCsv(array $head, $data, $mark = 'attack_ip_info', $fileName = "test.
     header('Content-Length: ' . filesize($filename)); //
     @readfile($filename);//输出文件;
     unlink($filename); //删除压缩包临时文件
+}
+
+/**
+ * 未测试
+ * 下载的文件通常很大, 所以先设置csv相关的Header头, 然后打开
+ * PHP output流, 渐进式的往output流中写入数据, 写到一定量后将系统缓冲冲刷到响应中
+ * 避免缓冲溢出
+ */
+function getExportCsv($timeStart, $timeEnd){
+
+    set_time_limit(0);
+    $columns = [
+        '文章ID','文章标题',
+    ];
+    
+    $csvFileName = '用户日志' . $timeStart .'_'. $timeEnd . '.xlsx';
+    //设置好告诉浏览器要下载excel文件的headers
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment; filename="'. $fileName .'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    $fp = fopen('php://output', 'a');//打开output流
+    mb_convert_variables('GBK', 'UTF-8', $columns);
+    fputcsv($fp, $columns);//将数据格式化为CSV格式并写入到output流中
+    $accessNum = '1000000'//从数据库获取总量，假设是一百万
+    $perSize = 1000;//每次查询的条数
+    $pages   = ceil($accessNum / $perSize);
+    $lastId  = 0;
+    for($i = 1; $i <= $pages; $i++) {
+        $accessLog = $logService->getArticleAccessLog($timeStart, $timeEnd, $lastId, $perSize);
+        foreach($accessLog as $access) {
+            $rowData = [
+                //每一行的数据
+            ];
+            mb_convert_variables('GBK', 'UTF-8', $rowData);
+            fputcsv($fp, $rowData);
+            $lastId = $access->id;
+        }
+        unset($accessLog);//释放变量的内存
+        //刷新输出缓冲到浏览器
+        ob_flush();
+        flush();//必须同时使用 ob_flush() 和flush() 函数来刷新输出缓冲。
+    }
+    fclose($fp);
+    exit();
 }
