@@ -5,7 +5,7 @@ server {
     server_name  thinkphp3.site;
 
     access_log  /var/log/nginx/thinkphp3.site.access.log;
-	error_log /var/log/nginx/thinkphp3.site.error_log;
+    error_log /var/log/nginx/thinkphp3.site.error_log;
 
     charset utf-8;
 
@@ -14,9 +14,9 @@ server {
     location / {
     
     //重写隐藏index.php
-		if (!-e $request_filename) {
-        	rewrite  ^(.*)$  /index.php?s=$1  last;
-        	break;
+	if (!-e $request_filename) {
+            rewrite  ^(.*)$  /index.php?s=$1  last;
+            break;
     	}
     }
 
