@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>导出电子表格</title>
+</head>
+<body>
+	<!-- <form action="http://192.168.0.150:7070/audit/v1/audit/prepaidcard/pulllist" method="get"> -->
+	<form action="http://dan-audit-api.iot-sw.net:9999/audit/v1/audit/prepaidcard/pulllist" method="get">
+		关键字<input type="text" name="kw"><br/>
+		状态<input type="text" name="status"><br/>
+		开始时间<input type="text" name="start"><br/>
+		结束时间<input type="text" name="end"><br/>
+		文件名<input type="text" name="filename"><br/>
+		用户ID<input type="text" name="userId"><br/>
+		列名<textarea name="columnnames" id="" cols="30" rows="10"></textarea><br/>
+		
+		<input type="submit" value="下载表格">
+	</form>
+</body>
+</html>

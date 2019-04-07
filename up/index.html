@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Ajax+PHPʵ���첽ͼƬ�ϴ�</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <!-- <script src="js/jquery-1.10.2.min.js"></script> -->
+        <script src="https://cdn.bootcss.com/jquery/1.11.0/jquery.js"></script>
+        <style type="text/css">
+        #feedback{
+            height: 200px;
+            text-align: center;
+            height: 160px;
+            border: 1px solid silver;
+            border-radius: 3px;
+        }
+        #feedback img{
+            margin:3px 10px;
+            border: 1px solid silver;
+            border-radius:3px;
+            padding: 6px;
+            width: 35%;
+            height: 85%;
+        }
+        #feedback p{
+            font-family: "΢���ź�";
+            line-height: 120px;
+            color: #ccc;
+        }
+        .file {
+            position: relative;
+            display: inline-block;
+            border: 1px solid #1ab294;
+            border-radius: 4px;
+            padding: 8px 16px;
+            overflow: hidden;
+            color: #fff;
+            text-decoration: none;
+            text-indent: 0;
+            line-height: 20px;
+            color: #1ab294;
+            }
+
+            .file input {
+            position: absolute;
+            font-size: 100px;
+            right: 0;
+            top: 0;
+            opacity: 0;
+            }
+            .box{
+            margin-top: 10px;
+            text-align: center;
+            }
+            .box a{
+            margin-left: 10px;
+            }
+    </style>
+</head>
+<body>
+    <!-- ��Ӧ������������ -->
+    <div id="feedback">
+    </div>
+        <div class="box">
+            <a href="javascript:;" class="file">ѡ��ͼƬ
+                <input type="file" multiple="multiple" id="inputfile" name="" class="photo">
+            </a>
+            <a href="javascript:;" class="file close">����ѡ��
+                <input type="buttom" class="photo">
+            </a>
+        </div>
+<script type="text/javascript">
+$(document).ready(function(){
+    //��Ӧ�ļ����ӳɹ��¼�
+    var feedback = $("#feedback");
+    $("#inputfile").change(function(){
+    if (feedback.children('img').length>1) {
+        alert("����ֻ��ѡ������ͼƬ");
+        return false;
+    }
+        //����FormData����
+        var data = new FormData();
+        //ΪFormData������������
+        $.each($('#inputfile')[0].files, function(i, file) {
+            data.append('upload_file'+i, file);
+        });
+        $(".loading").show();    //��ʾ����ͼƬ
+        //��������
+        $.ajax({
+            url:'up.php', /*ȥ���Ǹ�php�ļ�*/
+            type:'POST',  /*�ύ��ʽ*/
+            data:data,
+            cache: false,
+            contentType: false,        /*����ȱ*/
+            processData: false,         /*����ȱ*/
+            success:function(data){
+                data = $(data).html();        /*ת��ʽ*/
+
+                //��һ��feedback����ֱ��append����������before��1���� .eq(0).before() ��������ǰ�档
+                //data.replace(/&lt;/g,'<').replace(/&gt;/g,'>') ת��html��ǩ������ͼƬ�޷���ʾ��
+                if($("#feedback").children('img').length == 0)
+                {
+                 $("#feedback").append(data.replace(/&lt;/g,'<').replace(/&gt;/g,'>'));
+                }
+                else{
+                    $("#feedback").children('img').eq(0).before(data.replace(/&lt;/g,'<').replace(/&gt;/g,'>'));
+                }
+            },
+            error:function(){
+                alert('�ϴ�����');
+            }
+        });
+    });
+    $(".close").on("click",function(){
+        $("#feedback").empty();
+    });
+});
+</script>
+</body>
+</html>
