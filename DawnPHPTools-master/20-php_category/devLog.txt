@@ -1,0 +1,282 @@
+﻿name:(php分类管理系统)php进度跟踪管理系统v1.0 
+name(en):category system using class
+js/php熟手交流群 369578518
+
+--------------------------------
+UI参考：http://www.itbull.cn/
+--------------------------------
+变量约定：
+	分类的增删改查。左边分类，右边是条目。默认不分页。
+	[1]index.php?cate_id=-1&u_id=2 所有条目
+	[2]index.php?cate_id=0&u_id=2 默认分类
+	[3no] index.php?cate_id=-2&u_id=2 回收站
+其他用户约定：
+	$uid为待查看者uid
+	$cur_uid为登陆用户的uid；
+--------------------------------
+第一版本：
+--------------------------------
+1.前台页面和样式
+	-[1] 初步搞定html，添加美化css
+	
+2.php和js开发分类的管理功能：增删改查分类，及修改分类的显示顺序。
+	-[1] 构建数据库 article 和 category
+mysql> desc article;
++-----------+-------------+------+-----+---------+----------------+
+| Field     | Type        | Null | Key | Default | Extra          |
++-----------+-------------+------+-----+---------+----------------+
+| id        | int(10)     | NO   | PRI | NULL    | auto_increment |
+| title     | varchar(30) | YES  |     | NULL    |                |
+| content   | text        | YES  |     | NULL    |                |
+| modi_time | varchar(30) | YES  |     | NULL    |                |
+| add_time  | varchar(30) | YES  |     | NULL    |                |
+| u_id      | int(10)     | YES  | MUL | NULL    |                |
+| cate_id   | int(10)     | YES  |     | NULL    |                |
++-----------+-------------+------+-----+---------+----------------+
+	
+mysql> desc category;
++--------+-------------+------+-----+---------+----------------+
+| Field  | Type        | Null | Key | Default | Extra          |
++--------+-------------+------+-----+---------+----------------+
+| id     | int(10)     | NO   | PRI | NULL    | auto_increment |
+| name   | varchar(30) | YES  |     | NULL    |                |
+| u_id   | int(10)     | YES  | MUL | NULL    |                |
+| u_rank | int(10)     | YES  |     | NULL    |                |
++--------+-------------+------+-----+---------+----------------+
+
+mysql> desc user;
++------------+------------------+------+-----+---------+----------------+
+| Field      | Type             | Null | Key | Default | Extra          |
++------------+------------------+------+-----+---------+----------------+
+| id         | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| username   | char(15)         | NO   |     |         |                |
+| password   | char(32)         | NO   |     |         |                |
+| email      | varchar(40)      | NO   |     |         |                |
+| regdate    | int(10) unsigned | NO   |     | 0       |                |
+| lastlogin  | int(10) unsigned | NO   |     | 0       |                |
+| usergroup  | int(10) unsigned | NO   |     | 0       |                |
+| session_id | char(30)         | NO   |     | NULL    |                |
+| portrait   | varchar(30)      | YES  |     | NULL    |                |
++------------+------------------+------+-----+---------+----------------+
+	-[2] 订正目录。该用dawnPHP框架。
+	-[3] 增加ajax函数，初始化时加载分类:向后台请求json数据，前台添加dom；
+		从当前页获取分类信息，设定当前分类为阴影背景。
+		[2]精简化Category类。
+	-[4] 在article表中增加数据；ajax添加相应目录下的文章列表。
+		[2no]添加默认分类，没有分类信息的就是默认分类。
+	-[5] 显示每个目录的条目数量。所有分类等于所有相加。
+	-[6] 调整编码为utf-8 no bom.
+	-[7] fix bug:单击分类时，对应标题中没有u_id，导致获取条目失败。
+	-[8]ng 可以删除目录了。虽然很丑。虽然还是跳转的。
+		[1] fix bug:删除某一个目录后，文章表中更新cate_id=0；
+		[2] fix bug:默认分类就是某一个用户名下，[revised]cate_id=0的条目；
+			已经被修改为cate_id=0为默认分类。
+		[3]	删除目录后，修改原文章中的cate_id=0,也就是进入默认分类。
+	-[9] 可以添加目录。
+	-[10] 重构Category类，和Article类，
+		[1]index.php?cate_id=-1&u_id=2 所有条目
+		[2]index.php?cate_id=0&u_id=2 默认分类
+		
+		[3no] index.php?cate_id=-2&u_id=2 回收站
+	-[11] 添加了是否修改属性（隐藏表单），不修改不能提交；
+		在所有input的onchange事件中如果修改则修改该属性；
+	-[12] 可以修改目录的排序了。
+	-[13] 修改文章的分类。
+		[1] 后台请求分类数据，显示到新旧列表框中；
+		[2]no 为了节省流量，从后台获取一次数据可以更精简一点。
+		[3] 根据分类信息，从后台请求条目列表。
+			前台：选择旧目录，选择需要移动的条目，选择新目录，点击移动。
+		[4] 后台，在Category类中完成移动目录功能。
+		
+3.添加、删除新页面功能
+	-[1] 前台：增加新条目页面。分离footer，美化。
+	-[2] 获取现有目录。重叠的dom操作合并到dom.js中。
+	-[3] 提交新条目到Article。增加了一个没有功能的Tags.class.php
+		[no]前后台都没有处理tag。
+	-[4]- 删除条目。前台删除有bug：
+		[1] fix[默认分类时会报错。] 取消.default，则默认分类可正常被选择。
+		[2] fix[所有分类 没有减1.] 通过重构目录/文章初始化js函数。
+		[3] fix[删除条目时唯一条目怎么不显示提示？]通过优化delItem函数。
+	-[5] 删除条目前弹出确认框。
+	-[6] 添加后跳转到详细信息页面。
+4.显示详细信息页面
+	-[1] 根据添加页面制作显示页面。详情显示页面。
+	-[2] 实现删除功能。为其他2个页面增加footer。
+	-[3] 详情页面分类现实的是id。已经修改Article类，从Category类获取了分类名。
+5. 登陆功能：不登录不让看，但是没时间写登陆，先写一个凑合的页面。
+	-[1] 一键登陆，一键退出。目前就一个用户。
+	-[2] 随时可以退出，取消退出后再退出报错。
+	-[3] 初步实现登陆功能。
+添加用户数据，
+配置文件中：	分组时，2为管理员，1为用户。
+数据库中：
+CREATE TABLE `user` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `username` char(15) NOT NULL DEFAULT '',
+  `password` char(40) NOT NULL DEFAULT '',
+  `email` varchar(40) NOT NULL DEFAULT '',
+  `regdate` int(10) unsigned NOT NULL DEFAULT '0',
+  `lastlogin` int(10) unsigned NOT NULL DEFAULT '0',
+  `usergroup` int(10) unsigned NOT NULL DEFAULT '0',
+  `session_id` char(30) NOT NULL,
+  `portrait` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into user(username,password,email,regdate,usergroup) values
+('王军亮','7c4a8d09ca3762af61e59520943dc26494f8941b',"jimmyMall@live.com",1452332327,2),
+('张三丰','7c4a8d09ca3762af61e59520943dc26494f8941b',"zhangsf@qq.com",1452330327,1);
+	[4] --登陆记录sessionid和登陆时间。。。
+	
+	
+	-- 在没登录的时候给出所有用户。按权限分组。
+	--多用户怎么解决？
+	
+	===========================
+	mysql上一条 下一条：http://blog.csdn.net/tengdazhang770960436/article/details/39996705
+	SELECT * FROM `user` where userId>3 ORDER BY userId ASC LIMIT 0,1;
+	SELECT * FROM `user` where userId<3 ORDER BY userId desc LIMIT 0,1;
+	===========================
+
+6.框架优化：
+	11:00 2016-01-09 
+	[1] 修改库的引入方式，绝对路径不写死。
+
+7.修改页面的功能。
+8.美化登陆页面。页头和页脚独立成视图文件。
+	[1]登陆、首页、修改article、详情、删除、新建条目视图正常；
+	[2] 还有2个管理视图：管理分类、管理条目。已经可用。
+9.-添加属性控制按钮-增删改查	
+	属性键名表mykey
+		name：随便叫
+		类别：(0)text、(1)picture、(2)file
+=========================
+属性键表mykey
+CREATE TABLE `mykey` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `type` int(2) NOT NULL DEFAULT 0,
+  `u_id` int(10) NOT NULL DEFAULT 1,
+  `rank` int(10) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;	
+insert into `mykey`(name,type,u_id,rank) values
+('HPLC',1,1,1),('MS',1,1,2),('MS_note',0,1,3),('rar',2,1,4),
+('HPLC',1,2,1),('MS',1,2,2),('MS_note',0,2,3),('rar',2,2,4);
+
+=========================
+属性值表myvalue
+CREATE TABLE `myvalue` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `a_id` int(10) NOT NULL DEFAULT 1,
+  `u_id` int(10) NOT NULL DEFAULT 1,
+  `add_time` varchar(30) NOT NULL DEFAULT '',
+  `modi_time` varchar(30) NOT NULL DEFAULT '',
+  `key_id` int(10) NOT NULL,
+  `text` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into `myvalue`(u_id,a_id,add_time,key_id,text) values
+(1,42,1452681891,1,'upload/usr_1/001.jpg'),
+(1,42,1452686891,2,'upload/usr_1/001.jpg'),
+(1,42,1452684991,3,'some text here about MS'),
+(1,42,1452684991,4,'upload/usr_1/001.txt'),
+
+(2,33,1422681891,6,'upload/usr_2/002.jpg'),
+(2,33,1432684991,7,'some text here about MS002'),
+(2,33,1462684991,8,'upload/usr_2/002.txt');
+
+mysql> desc mykey;
++-------+------------------+------+-----+---------+----------------+
+| Field | Type             | Null | Key | Default | Extra          |
++-------+------------------+------+-----+---------+----------------+
+| id    | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(50)      | NO   |     |         |                |
+| type  | int(2)           | NO   |     | 0       |                |
+| u_id  | int(10)          | NO   |     | 1       |                |
+| rank  | int(10)          | NO   |     | 1       |                |
++-------+------------------+------+-----+---------+----------------+
+5 rows in set (0.19 sec)
+
+mysql> desc myvalue;
++-----------+------------------+------+-----+---------+----------------+
+| Field     | Type             | Null | Key | Default | Extra          |
++-----------+------------------+------+-----+---------+----------------+
+| id        | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| a_id      | int(10)          | NO   |     | 1       |                |
+| u_id      | int(10)          | NO   |     | 1       |                |
+| add_time  | varchar(30)      | NO   |     |         |                |
+| modi_time | varchar(30)      | NO   |     |         |                |
+| key_id    | int(10)          | NO   |     | NULL    |                |
+| text      | text             | YES  |     | NULL    |                |
++-----------+------------------+------+-----+---------+----------------+
+
+============================================================
+发布新版本：在添加属性功能之前的版本。
+------------------------------------------------------------
+	- 加功能前添加标签：* [new tag]   v20thV0.1.9 -> v20thV0.1.9
+	- 基本的博客系统，可以登录缺少注册，缺少编辑器
+	commit fc9fd666f0fb316b1e476c05c655b0e7638b75e0
+Author: Dawn <JimmyMall@live.com>
+Date:   Wed Jan 13 20:10:18 2016 +0800
+
+    before v9 add property functions.
+============================================================
+	[1] 主页添加修改属性按钮，在detail页面显示、添加属性的值。
+	[2] git忽略upload文件夹
+	[3] add createElement(). 如果属性全显示，则隐藏添加按钮。
+	[4] 修改库引入方式，两句变一句。在库入口文件获取库文件的绝对路径。
+	[5] 上传失败返回，倒计时返回。通过
+		Dawn::goBackIn(5,'','上传出现错误！' . $arr[1]);调用js中jumpToUrl()函数实现。
+	[6] 点击删除属性，带确认提示。不允许编辑属性。想修改可以删除，再上传。
+		顺序：删除文件，再删除数据库记录。
+		
+	[7] 上传文件命名规则，放到a_id文件夹中/日期_识别号），便于聚集同一条的附件。
+		1)优化文件夹类。
+		
+		--怎么处理空文件夹？
+	[8] 点击属性页面，删除属性键（包括删除所有已有属性值信息、附件信息、属性键条目信息）
+	[9] 点击属性页面，添加属性的键。（只能设置name，不能设置type，默认type都是text），需要再修改。
+	[10] 点击属性页面，修改属性的键的信息。（提交后跳转到首页，有点唐突）
+
+============================================================
+发布新版本：在添加属性功能之后第一个可用版本。
+------------------------------------------------------------
+	- 加功能前添加标签：* [new tag]   v20thV0.2.0 -> v20thV0.2.0
+	- 基本的进程管理系统，可以录入信息，可以登录，缺少注册，缺少编辑器，缺少进程展示。
+	commit 
+Author: Dawn <JimmyMall@live.com>
+Date:   Wed Jan 23 22:08:18 2016 +0800
+
+    before v0.2 add register functions.
+============================================================	
+
+--------------------------------
+第2版本：0.2
+--------------------------------
+1.
+	文本框中的文字怎么显示正常呢？回车与br的转换。
+	
+	上传文件夹的可移动性怎么实现？
+	怎么上传的时保持文件原名？
+	表名：newkey/newvalue
+	
+
+	
+	
+	
+	修改分类:怎么ajax单页面内修改目录表? 
+			如果删除掉一个目录项，则对应的文章怎么处理？[ok 2.8.3]
+			默认分类怎么实现？[ok 2.10.2]
+			回收站怎么实现？
+			怎么拖动修改目录显示顺序？
+	局部更新:怎么联动更新url？
+	
+
+
+Web技术研究所：https://www.web-tinker.com/		
+		
+从零开始搭建Node.js, Express, Ejs, Mongodb服务器	
+http://www.toolmao.com/nodejs-express-ejs-mongodb-server
+
+
+	

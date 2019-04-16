@@ -1,0 +1,35 @@
+﻿<?php
+$data='
+{
+	"button":[
+	{
+		"name":"公共查询",
+		"sub_button":[
+		{
+			"type":"click",
+			"name":"天气查询",
+			"key":"tianQi"
+		},
+		{
+			"type":"click",
+			"name":"翻译",
+			"key":"fanYi"
+		}]
+	},
+	{
+		"name":"郑州本地",
+		"sub_button":[
+		{
+			"type":"click",
+			"name":"住在郑州",
+			"key":"liveSuzhou"
+		}]
+	},
+	{
+		"type":"click",
+		"name":"联系我们",
+		"key":"lianxiUs"
+	}]
+}';
+
+//echo $data;
