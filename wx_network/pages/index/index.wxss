@@ -1,0 +1,27 @@
+/**index.wxss**/
+page{
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  color: #ddd;
+  background-color: rgb(60, 63, 65);
+  font-family: 微软雅黑,"Microsoft YaHei", Helvetica Neue, Helvetica, sans-serif;
+}
+button{
+  margin-right: 8rpx;
+}
+image{
+  width: 90%;
+}
+.marginTop20{
+  margin-top: 20rpx;
+}
+.result{
+  width: 100%;
+  font-size: 26rpx;
+  padding: 12px 0;
+}
+.photo{
+  width: 300rpx;
+}
