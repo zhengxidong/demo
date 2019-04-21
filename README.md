@@ -26,5 +26,5 @@
 ├── tags                  //标签云 - 未测试
 ├── thinkphp_3.2.3_full . //整合功能系列
 ├──  up
-└──wx_network             //小程序网络请求封装类 - 未测试
+└──wx_network             //小程序使用Promise封装的网络请求库 - 未测试
 ```
