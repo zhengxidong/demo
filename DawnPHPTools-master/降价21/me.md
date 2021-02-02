@@ -2,15 +2,15 @@
 
 ## 基本信息   
 
-- 姓名: 王军亮  
+- 姓名:  
 - 性别: M  
 
 
 ## 联系方式  
 
-- 电话: 15890149335  
-- 邮箱: JimmyMll@live.com  
-- QQ: 469004330  
+- 电话:  
+- 邮箱: 
+- QQ: 
 - GitHub:https://github.com/DawnEve
 - 百度贴吧:[亲自走路吧](http://tieba.baidu.com/f?kw=%C7%D7%D7%D4%D7%DF%C2%B7&fr=index)
 
